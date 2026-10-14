@@ -3,6 +3,7 @@ name: Fuzzing
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,7 +30,7 @@ jobs:
 
       - name: Get payloads
         run: |
-          wget https://raw.githubusercontent.com/swisskyrepo/PayloadsAllTheThings/refs/heads/master/SQL%20Injection/Intruder/SQL-Injection
+          wget -o SQL-Injection.txt https://raw.githubusercontent.com/swisskyrepo/PayloadsAllTheThings/refs/heads/master/SQL%20Injection/Intruder/SQL-Injection
       
       - name: Install fuzzing
         run: |
@@ -37,15 +38,25 @@ jobs:
 
       - name: Run fuzzing
         run: |
-          $HOME/go/bin/ffuf || true
+          $HOME/go/bin/ffuf \
+            -w SQL-Injection.txt:FUZZ \
+            -u "http://localhost:3000/rest/user/login" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"email":"FUZZ","password":"pass"}' \
+            -o ffuf-report.json \
+            -of json || true
 
       - name: Get Logs from Service
+        if: always()
         run: |
           docker logs $(docker ps -q) > juice-logs.log
 
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-reports-bundle
           path: |
             juice-logs.log
+            ffuf-report.json
