@@ -40,7 +40,7 @@ jobs:
         run: |
           $HOME/go/bin/ffuf -w SQL-Injection:USER -w SQL-Injection:PASS -X POST -mode clusterbomb -H "Content-Type: application/json" \
           -d '{"email":"USER","password":"PASS"}' \
-          -u "http://localhost:3000/rest/user/login" -fc 401 -o ffuf-report.json -of json
+          -u "http://localhost:3000/rest/user/login" -mc 200 -o ffuf-report.csv -of csv
 
       - name: Get Logs from Service
         if: always()
@@ -54,4 +54,4 @@ jobs:
           name: security-reports-bundle
           path: |
             juice-logs.log
-            ffuf-report.json
+            ffuf-report.csv
