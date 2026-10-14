@@ -38,7 +38,7 @@ jobs:
 
       - name: Run fuzzing
         run: |
-          -w SQL-Injection -X POST -H "Content-Type: application/json" -d '{"email":"admin@juice-sh.op","password":"FUZZ"}' \
+          $HOME/go/bin/ffuf -w SQL-Injection -X POST -H "Content-Type: application/json" -d '{"email":"admin@juice-sh.op","password":"FUZZ"}' \
           -u "http://localhost:3000/rest/user/login" -fc 401
 
       - name: Get Logs from Service
