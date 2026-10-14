@@ -38,8 +38,9 @@ jobs:
 
       - name: Run fuzzing
         run: |
-          $HOME/go/bin/ffuf -w SQL-Injection -X POST -H "Content-Type: application/json" -d '{"email":"admin@juice-sh.op","password":"FUZZ"}' \
-          -u "http://localhost:3000/rest/user/login" -fc 401
+          $HOME/go/bin/ffuf -w SQL-Injection:USER -w SQL-Injection:PASS -X POST -mode clusterbomb -H "Content-Type: application/json" \
+          -d '{"email":"USER","password":"PASS"}' \
+          -u "http://localhost:3000/rest/user/login" -fc 401 -o ffuf-report.json -of json
 
       - name: Get Logs from Service
         if: always()
